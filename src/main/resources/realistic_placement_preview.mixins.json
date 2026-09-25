@@ -1,0 +1,16 @@
+{
+  "package": "com.bettercontent.realisticplacementpreview.mixin",
+  "refmap": "realistic_placement_preview.refmap.json",
+  "mixins": [
+    "rbp.BlockDefinitionCatalogFactoryMixin"
+  ],
+  "client": [
+    "rotavision.GhostRendererMixin"
+  ],
+  "required": false,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

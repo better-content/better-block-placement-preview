@@ -1,4 +1,4 @@
-package com.bettercontent.realisticplacementpreview.placementpreview;
+package com.bettercontent.betterblockplacementpreview.placementpreview;
 
 import java.util.Map;
 import net.minecraft.core.BlockPos;

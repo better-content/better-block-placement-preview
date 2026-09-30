@@ -7,4 +7,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "realistic-placement-preview"
+rootProject.name = "better-block-placement-preview"

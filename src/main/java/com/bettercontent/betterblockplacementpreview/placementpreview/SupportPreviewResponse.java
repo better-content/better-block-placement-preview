@@ -1,4 +1,4 @@
-package com.bettercontent.realisticplacementpreview.placementpreview;
+package com.bettercontent.betterblockplacementpreview.placementpreview;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;

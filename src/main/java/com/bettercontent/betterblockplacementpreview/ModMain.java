@@ -1,15 +1,15 @@
-package com.bettercontent.realisticplacementpreview;
+package com.bettercontent.betterblockplacementpreview;
 
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
-import com.bettercontent.realisticplacementpreview.placementpreview.SupportPreviewNetwork;
-import com.bettercontent.realisticplacementpreview.placementpreview.SupportPreviewGameTests;
+import com.bettercontent.betterblockplacementpreview.placementpreview.SupportPreviewNetwork;
+import com.bettercontent.betterblockplacementpreview.placementpreview.SupportPreviewGameTests;
 import net.minecraftforge.event.RegisterGameTestsEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(ModMain.MOD_ID)
 public final class ModMain {
-    public static final String MOD_ID = "realistic_placement_preview";
+    public static final String MOD_ID = "better_block_placement_preview";
 
     public ModMain() {
         MixinExtrasBootstrap.init();

@@ -1,4 +1,4 @@
-package com.bettercontent.realisticplacementpreview.compat;
+package com.bettercontent.betterblockplacementpreview.compat;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;

@@ -1,6 +1,6 @@
 {
-  "package": "com.bettercontent.realisticplacementpreview.mixin",
-  "refmap": "realistic_placement_preview.refmap.json",
+  "package": "com.bettercontent.betterblockplacementpreview.mixin",
+  "refmap": "better_block_placement_preview.refmap.json",
   "mixins": [
     "rbp.BlockDefinitionCatalogFactoryMixin"
   ],

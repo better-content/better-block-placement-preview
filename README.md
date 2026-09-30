@@ -1,4 +1,4 @@
-# Realistic Placement Preview
+# Better Block Placement Preview
 
 Adds an advisory, server-authoritative RBP support prediction to RotaVision block placement ghosts. Teal marks a supported proposal, amber marks a predicted fall or crush, and white marks an unavailable prediction. Vanilla-invalid placement remains red; the preview never places blocks or runs RBP physics.
 

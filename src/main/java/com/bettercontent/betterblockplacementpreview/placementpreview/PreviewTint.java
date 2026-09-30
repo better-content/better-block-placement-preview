@@ -1,4 +1,4 @@
-package com.bettercontent.realisticplacementpreview.placementpreview;
+package com.bettercontent.betterblockplacementpreview.placementpreview;
 
 public record PreviewTint(int red, int green, int blue, int alpha) {
     public static final int VALID_ALPHA = 128;

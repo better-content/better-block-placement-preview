@@ -1,6 +1,6 @@
-package com.bettercontent.realisticplacementpreview.placementpreview;
+package com.bettercontent.betterblockplacementpreview.placementpreview;
 
-import com.bettercontent.realisticplacementpreview.ModMain;
+import com.bettercontent.betterblockplacementpreview.ModMain;
 import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;

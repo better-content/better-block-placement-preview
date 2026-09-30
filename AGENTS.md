@@ -4,8 +4,8 @@
 
 This repository contains the Better Content Forge mod **Realistic Placement Preview**.
 
-- Canonical mod ID: `realistic_placement_preview`
-- Canonical artifact: `realistic-placement-preview-<version>.jar`
+- Canonical mod ID: `better_block_placement_preview`
+- Canonical artifact: `better-block-placement-preview-<version>.jar`
 - Maven group: `com.bettercontent`
 - Java runtime: 17
 - Minecraft/Forge baseline: 1.20.1 / 47.4.13

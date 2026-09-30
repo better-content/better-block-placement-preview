@@ -1,6 +1,6 @@
-package com.bettercontent.realisticplacementpreview.mixin.rbp;
+package com.bettercontent.betterblockplacementpreview.mixin.rbp;
 
-import com.bettercontent.realisticplacementpreview.compat.RealisticBlockPhysicsDefinitions;
+import com.bettercontent.betterblockplacementpreview.compat.RealisticBlockPhysicsDefinitions;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.world.level.block.state.BlockState;

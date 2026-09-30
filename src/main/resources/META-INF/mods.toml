@@ -1,14 +1,14 @@
 modLoader="javafml"
 loaderVersion="[47,)"
 license="AGPL-3.0-or-later"
-issueTrackerURL="https://github.com/better-content/realistic-placement-preview/issues"
+issueTrackerURL="https://github.com/better-content/better-block-placement-preview/issues"
 
 [[mods]]
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="Better Content"
-displayURL="https://github.com/better-content/realistic-placement-preview"
+displayURL="https://github.com/better-content/better-block-placement-preview"
 description='''
 RBP, RotaVision and Realistic Physics integration with server-authoritative placement support previews.
 '''

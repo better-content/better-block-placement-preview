@@ -1,4 +1,4 @@
-package com.bettercontent.realisticplacementpreview.placementpreview;
+package com.bettercontent.betterblockplacementpreview.placementpreview;
 
 import net.minecraftforge.fml.ModList;
 

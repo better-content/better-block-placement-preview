@@ -1,7 +1,7 @@
-package com.bettercontent.realisticplacementpreview.mixin.rotavision;
+package com.bettercontent.betterblockplacementpreview.mixin.rotavision;
 
-import com.bettercontent.realisticplacementpreview.placementpreview.PreviewTint;
-import com.bettercontent.realisticplacementpreview.placementpreview.SupportPreviewClient;
+import com.bettercontent.betterblockplacementpreview.placementpreview.PreviewTint;
+import com.bettercontent.betterblockplacementpreview.placementpreview.SupportPreviewClient;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;

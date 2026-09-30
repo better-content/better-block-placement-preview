@@ -83,4 +83,4 @@ tasks.register("verifyFast") { group = "verification"; dependsOn(tasks.named("ch
 tasks.register("verifyFull") { group = "verification"; dependsOn(tasks.named("verifyFast")); dependsOn(tasks.named("headlessGameTest")) }
 tasks.withType<JavaCompile>().configureEach { options.release.set(17) }
 
-mixin { add(sourceSets.main.get(), "realistic_placement_preview.refmap.json"); config("realistic_placement_preview.mixins.json") }
+mixin { add(sourceSets.main.get(), "better_block_placement_preview.refmap.json"); config("better_block_placement_preview.mixins.json") }

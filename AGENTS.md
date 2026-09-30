@@ -2,7 +2,7 @@
 
 ## Scope
 
-This repository contains the Better Content Forge mod **Realistic Placement Preview**.
+This repository contains the Better Content Forge mod **Better Block Placement Preview**.
 
 - Canonical mod ID: `better_block_placement_preview`
 - Canonical artifact: `better-block-placement-preview-<version>.jar`

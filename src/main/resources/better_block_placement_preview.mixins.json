@@ -5,6 +5,7 @@
     "rbp.BlockDefinitionCatalogFactoryMixin"
   ],
   "client": [
+    "complicatedbees.BeeNestBlockEntityMixin",
     "rotavision.GhostRendererMixin"
   ],
   "required": false,

@@ -1,21 +1,16 @@
-# AGENTS.md
+# Better Block Placement Preview
 
-## Scope
+Forge 1.20.1 / Java 17; mod ID `better_block_placement_preview`.
 
-This repository contains the Better Content Forge mod **Better Block Placement Preview**.
+## Local verification
 
-- Canonical mod ID: `better_block_placement_preview`
-- Canonical artifact: `better-block-placement-preview-<version>.jar`
-- Maven group: `com.bettercontent`
-- Java runtime: 17
-- Minecraft/Forge baseline: 1.20.1 / 47.4.13
+- Deterministic: `./gradlew verifyFast`.
+- Runtime/GameTest changes: `./gradlew verifyFull`.
+- Stage: `./gradlew stageRuntimeJar`, `build/libs/better-block-placement-preview-<version>.jar`.
 
-## Commit discipline
+## Shared authority
 
-Commit after each coherent completed change. Run documented validation before committing and push the current branch.
-
-## Validation
-
-Run `./gradlew verifyFast` for deterministic checks. Run `./gradlew verifyFull` for runtime or GameTest changes. Stage deployable runtime artifacts with `./gradlew stageRuntimeJar`.
-
-Do not commit build outputs, runtime worlds, logs, IDE state, or downloaded dependency JARs.
+Read [workspace policy](../../better-content-modpack/docs/policies/workspace.md),
+[testing](../../better-content-modpack/docs/testing.md) and
+[disposal](../../better-content-modpack/docs/policies/generated-data.md).
+Docs-only changes use the shared documentation check and `git diff --check`.

@@ -1,5 +1,11 @@
 # Better Block Placement Preview
 
+## Scope and authority
+
+This repository owns its mod-specific behavior and authoring inputs. Read [local instructions](AGENTS.md)
+and the [shared documentation/policy index](../../better-content-modpack/docs/README.md).
+
+
 Adds an advisory, server-authoritative RBP support prediction to RotaVision block placement ghosts. Teal marks a supported proposal, amber marks a predicted fall or crush, and white marks an unavailable prediction. Vanilla-invalid placement remains red; the preview never places blocks or runs RBP physics.
 
 Requires Forge 1.20.1, RotaVision 1.0.2, Realistic Block Physics 1.0.0, and Realistic Physics 1.0.1.

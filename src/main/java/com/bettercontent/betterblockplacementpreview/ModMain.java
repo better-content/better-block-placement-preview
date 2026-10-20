@@ -21,7 +21,7 @@ public final class ModMain {
         MixinExtrasBootstrap.init();
         SupportPreviewNetwork.initialize();
         PLAYTEST.status("common", ModList.get().getModContainerById(MOD_ID)
-                .map(mod -> mod.getModInfo().getVersion().toString()).orElse("UNKNOWN"), "UNKNOWN",
+                .map(mod -> mod.getModInfo().getVersion().toString()).orElse("UNKNOWN"), source(),
                 () -> PlaytestLog.fields("enabled", true, "integration", "version_gated",
                         "rotavision_version", version("rotavision"), "rbp_version", version("rbp"),
                         "realisticphysics_version", version("realisticphysics"),
@@ -29,6 +29,11 @@ public final class ModMain {
         MinecraftForge.EVENT_BUS.addListener(ModMain::serverTick);
         MinecraftForge.EVENT_BUS.addListener(ModMain::serverStopped);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerTests);
+    }
+    private static String source() {
+        var file = ModList.get().getModFileById(MOD_ID);
+        return PLAYTEST.sourceIdentity(file == null || file.getFile() == null ? (java.nio.file.Path) null
+                : file.getFile().findResource("META-INF", "better-content-source.properties"));
     }
     private static String version(String modId) {
         return ModList.get().getModContainerById(modId)

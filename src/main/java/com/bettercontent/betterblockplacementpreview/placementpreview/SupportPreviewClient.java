@@ -1,5 +1,11 @@
 package com.bettercontent.betterblockplacementpreview.placementpreview;
 
+import com.bettercontent.betterblockplacementpreview.ModMain;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import java.util.Objects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -13,10 +19,22 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.registries.ForgeRegistries;
 
+@Mod.EventBusSubscriber(modid = ModMain.MOD_ID, value = Dist.CLIENT)
 public final class SupportPreviewClient {
     private static final PlacementPreviewCache<PlacementKey> CACHE = new PlacementPreviewCache<>();
 
     private SupportPreviewClient() {
+    }
+
+    @SubscribeEvent
+    public static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
+        CACHE.clear();
+        ModMain.PLAYTEST.reset("client");
+    }
+
+    @SubscribeEvent
+    public static void tick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END && ModMain.PLAYTEST.enabled("summary")) ModMain.PLAYTEST.summary("client");
     }
 
     public static void observe(

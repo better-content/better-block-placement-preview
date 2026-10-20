@@ -1,5 +1,7 @@
 package com.bettercontent.betterblockplacementpreview.placementpreview;
 
+import com.bettercontent.betterblockplacementpreview.ModMain;
+import com.bettercontent.betterblockplacementpreview.diagnostics.PlaytestLog;
 import java.util.Objects;
 import java.util.function.IntConsumer;
 import net.minecraft.core.BlockPos;
@@ -8,6 +10,10 @@ public final class PlacementPreviewCache<K> {
     public static final long MIN_REQUEST_INTERVAL_MILLIS = 250L;
     public static final long REFRESH_INTERVAL_MILLIS = 500L;
     public static final long RESULT_EXPIRY_MILLIS = 750L;
+
+    private final PlaytestLog diagnostics;
+    public PlacementPreviewCache() { this(ModMain.PLAYTEST); }
+    PlacementPreviewCache(PlaytestLog diagnostics) { this.diagnostics = diagnostics; }
 
     private K currentKey;
     private BlockPos currentTarget;
@@ -40,6 +46,10 @@ public final class PlacementPreviewCache<K> {
             currentSequence = nextSequence++;
             lastRequestAt = nowMillis;
             requestSender.accept(currentSequence);
+            if (diagnostics.enabled("request")) {
+                diagnostics.event("request", "preview.requested", "client", "submitted", "sender_returned",
+                        () -> PlaytestLog.fields("sequence", currentSequence));
+            }
         }
     }
 
@@ -48,10 +58,12 @@ public final class PlacementPreviewCache<K> {
                 || currentTarget == null
                 || !currentTarget.equals(response.targetPos())
                 || currentStateId != response.blockStateId()) {
+            responseOutcome(response, "rejected", "stale_or_mismatched");
             return false;
         }
         verdict = response.verdict();
         resultReceivedAt = nowMillis;
+        responseOutcome(response, "accepted", "cache_updated");
         return true;
     }
 
@@ -60,6 +72,23 @@ public final class PlacementPreviewCache<K> {
             return SupportPreviewVerdict.UNKNOWN;
         }
         return verdict;
+    }
+
+    /** A disconnected client must not retain an advisory result or pending target. Sequence never rewinds. */
+    public void clear() {
+        currentKey = null;
+        currentTarget = null;
+        currentStateId = -1;
+        currentSequence = -1;
+        lastRequestAt = resultReceivedAt = Long.MIN_VALUE;
+        verdict = SupportPreviewVerdict.UNKNOWN;
+    }
+
+    private void responseOutcome(SupportPreviewResponse response, String result, String reason) {
+        if (diagnostics.enabled("response")) {
+            diagnostics.event("response", "preview.response", "client", result, reason,
+                    () -> PlaytestLog.fields("sequence", response.sequence(), "verdict", response.verdict()));
+        }
     }
 
     private static long elapsed(final long now, final long before) {

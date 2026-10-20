@@ -1,5 +1,7 @@
 package com.bettercontent.betterblockplacementpreview.placementpreview;
 
+import com.bettercontent.betterblockplacementpreview.ModMain;
+import com.bettercontent.betterblockplacementpreview.diagnostics.PlaytestLog;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
@@ -32,13 +34,17 @@ final class SupportPreviewServer {
             final ServerPlayer player,
             final SupportPreviewRequest request
     ) {
-        final PlacementProposal proposal = reconstruct(player, request);
+        final Reconstruction reconstruction = reconstructResult(player, request);
+        final PlacementProposal proposal = reconstruction.proposal();
         if (proposal == null) {
+            outcome(player, request, "unknown", reconstruction.reason());
             return unknown(request.sequence(), request.blockHitResult().getBlockPos());
         }
         final SupportPreviewVerdict verdict = SupportPreviewVersions.physicsSupported()
                 ? RbpSupportPreviewAdapter.evaluate(player.serverLevel(), proposal)
                 : SupportPreviewVerdict.UNKNOWN;
+        outcome(player, request, verdict.name(), verdict == SupportPreviewVerdict.UNKNOWN
+                ? "physics_unsupported_or_unmodeled" : "advisory_evaluated");
         return new SupportPreviewResponse(
                 request.sequence(),
                 proposal.targetPos(),
@@ -46,20 +52,44 @@ final class SupportPreviewServer {
                 verdict);
     }
 
+    private static void outcome(ServerPlayer player, SupportPreviewRequest request, String result, String reason) {
+        if (ModMain.PLAYTEST.enabled("support")) {
+            ModMain.PLAYTEST.event("support", "preview.evaluated", "server", result, reason,
+                    () -> PlaytestLog.fields("sequence", request.sequence()));
+        }
+        if (ModMain.PLAYTEST.traceEnabled("support")) {
+            var pos = request.blockHitResult().getBlockPos();
+            ModMain.PLAYTEST.trace("support", "preview.focused", new PlaytestLog.Context("server",
+                    player.serverLevel().dimension().location().toString(), player.serverLevel().getGameTime(),
+                    player.getUUID().toString(), pos.getX() + "," + pos.getY() + "," + pos.getZ()), result, reason,
+                    () -> PlaytestLog.fields("sequence", request.sequence()));
+        }
+    }
+
     static PlacementProposal reconstruct(
             final ServerPlayer player,
             final SupportPreviewRequest request
     ) {
+        return reconstructResult(player, request).proposal();
+    }
+
+    /** Reasons describe existing advisory decisions, not placement admission or world mutation. */
+    private record Reconstruction(PlacementProposal proposal, String reason) {}
+
+    private static Reconstruction reconstructResult(
+            final ServerPlayer player,
+            final SupportPreviewRequest request
+    ) {
         if (!SupportPreviewVersions.rotaVisionSupported() || !RotaVision.isEnabledFor(player.getUUID())) {
-            return null;
+            return new Reconstruction(null, "rotavision_unavailable_or_disabled");
         }
         final Vec3 eye = player.getEyePosition();
         if (eye.distanceToSqr(request.blockHitResult().getLocation()) > MAX_DISTANCE_SQUARED) {
-            return null;
+            return new Reconstruction(null, "distance");
         }
         final ItemStack stack = player.getItemInHand(request.hand());
         if (!(stack.getItem() instanceof BlockItem blockItem)) {
-            return null;
+            return new Reconstruction(null, "not_block_item");
         }
         final BlockPlaceContext context = new BlockPlaceContext(
                 player,
@@ -68,11 +98,11 @@ final class SupportPreviewServer {
                 request.blockHitResult());
         final BlockPos target = context.getClickedPos();
         if (!player.serverLevel().hasChunkAt(target)) {
-            return null;
+            return new Reconstruction(null, "target_unloaded");
         }
         BlockState state = blockItem.getBlock().getStateForPlacement(context);
         if (state == null) {
-            return null;
+            return new Reconstruction(null, "no_placement_state");
         }
         if (state.hasProperty(ChestBlock.TYPE)) {
             state = state.setValue(ChestBlock.TYPE, ChestType.SINGLE);
@@ -84,9 +114,9 @@ final class SupportPreviewServer {
 
         final Map<BlockPos, BlockState> states = modelStates(blockItem, state, target);
         if (states == null || states.keySet().stream().anyMatch(pos -> !player.serverLevel().hasChunkAt(pos))) {
-            return null;
+            return new Reconstruction(null, "unmodeled_or_unloaded_multiblock");
         }
-        return new PlacementProposal(target.immutable(), state, states);
+        return new Reconstruction(new PlacementProposal(target.immutable(), state, states), "reconstructed");
     }
 
     static Map<BlockPos, BlockState> modelStates(

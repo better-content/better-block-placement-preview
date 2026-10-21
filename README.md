@@ -12,6 +12,16 @@ Requires Forge 1.20.1, RotaVision 1.0.2, Realistic Block Physics 1.0.0, and Real
 
 Build with `./gradlew verifyFast`, run runtime and GameTest validation with `./gradlew verifyFull`, and stage the reobfuscated jar with `./gradlew stageRuntimeJar`.
 
+## Cold source native fixture
+
+`verifyFull` binds a fresh `build/gametest/<UUID>` to the actual Forge RunConfig, preparation,
+structures and audited sink. CREATE_NEW settings preserve existing bytes; no old log/world or
+ordinary/visual run is deleted or adopted. Exactly six completed/passed native tests and strict
+latest/debug ERROR/FATAL/mixin-failure checks are required. Pure creation/preservation and
+missing/count-mismatch/duplicate/severity controls run through `verifyColdNativeFixtureGuard`.
+Retain complete prior build outputs before `clean`. Historical warm-fixture passes do not prove
+this new cold profile; actual admitted full/stage verification remains required.
+
 ## Bounded playtest diagnostics
 
 Loader-provided SLF4J categories under `bc.playtest.better_block_placement_preview` report startup

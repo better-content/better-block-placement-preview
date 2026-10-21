@@ -1,0 +1,81 @@
+// Repo-local source GameTest fixture. Never adopts/moves ordinary or historical run directories.
+def nativeToken = UUID.randomUUID().toString()
+def nativeDirectory = layout.buildDirectory.dir('gametest/' + nativeToken).get().asFile
+ext.bcNativeGameTestDirectory = nativeDirectory
+minecraft.runs.gameTestServer.workingDirectory(nativeDirectory)
+def expected = project.name == 'better-block-placement-preview' ? 6 :
+        project.name == 'better-rehooked-grappling' ? 4 :
+        project.name == 'better-rpg-progression' ? 6 :
+        project.findProperty('colonyWithoutBees') == 'true' ? 74 :
+        project.findProperty('backpackWithoutCurios') == 'true' ? 73 : 76
+
+def ensureNativeProperties = { File directory ->
+    java.nio.file.Files.createDirectories(directory.toPath())
+    try {
+        java.nio.file.Files.writeString(directory.toPath().resolve('server.properties'),
+                '# Native GameTest defaults; populated by Minecraft.\n',
+                java.nio.file.StandardOpenOption.CREATE_NEW, java.nio.file.StandardOpenOption.WRITE)
+    } catch (java.nio.file.FileAlreadyExistsException alreadyPresent) {
+        // Preserve original effective settings and exact bytes.
+    }
+}
+def validateNativeLog = { File log, int required ->
+    if (!log.isFile()) throw new GradleException("Missing current native log: ${log}")
+    def text = log.getText('UTF-8')
+    def errors = text.readLines().findAll { (it =~ /^(?:\[[^\]\r\n]+\]\s+)?\[(?:[^\]\r\n]+\/)?(?:ERROR|FATAL)\](?:\s|$)/) || it.contains('Mixin apply failed') }
+    if (errors) throw new GradleException("Native failed-operation/ERROR/FATAL: ${errors.take(8)}")
+    def complete = (text =~ /(?m)^.*\[[^\]\r\n]*GameTestServer[^\]\r\n]*\]: =+ ([0-9]+) GAME TESTS COMPLETE =+\s*$/).collect { it[1].toInteger() }
+    def passed = (text =~ /(?m)^.*\[[^\]\r\n]*GameTestServer[^\]\r\n]*\]: All ([0-9]+) required tests passed :\)\s*$/).collect { it[1].toInteger() }
+    if (complete != [required] || passed != [required])
+        throw new GradleException("Incomplete native profile: expected=${required}; completed=${complete}; passed=${passed}")
+}
+
+tasks.named('syncGameTestStructures').configure { into(new File(nativeDirectory, 'gameteststructures')) }
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    doFirst {
+        if (file(minecraft.runs.gameTestServer.workingDirectory).canonicalFile != nativeDirectory.canonicalFile)
+            throw new GradleException('Configured native RunConfig/setup directory mismatch')
+        ensureNativeProperties(nativeDirectory)
+    }
+    doLast {
+        validateNativeLog(new File(nativeDirectory, 'logs/latest.log'), expected)
+        def debug = new File(nativeDirectory, 'logs/debug.log')
+        if (debug.isFile()) validateNativeLog(debug, expected)
+        logger.lifecycle("Verified cold native fixture ${nativeDirectory}: ${expected} required completed tests")
+    }
+}
+
+def guard = tasks.register('verifyColdNativeFixtureGuard') {
+    group = 'verification'
+    doLast {
+        def root = layout.buildDirectory.dir('native-fixture-guard/' + UUID.randomUUID()).get().asFile
+        ensureNativeProperties(root)
+        def props = new File(root, 'server.properties')
+        if (props.getText('UTF-8') != '# Native GameTest defaults; populated by Minecraft.\n')
+            throw new GradleException('Absent properties creation failed')
+        byte[] custom = '# retained\r\nonline-mode=true\r\n'.getBytes('UTF-8')
+        props.bytes = custom
+        ensureNativeProperties(root)
+        if (!java.util.Arrays.equals(props.bytes, custom)) throw new GradleException('Existing properties overwritten')
+        def log = new File(root, 'latest.log')
+        def line = '[01Jan2026 00:00:00.000] [Server thread/INFO] [net.minecraft.gametest.framework.GameTestServer/]: '
+        def valid = line + '========= ' + expected + ' GAME TESTS COMPLETE ======================\n' +
+                line + 'All ' + expected + ' required tests passed :)\n'
+        log.setText(valid + line + 'quoted [main/ERROR] payload is not severity\n', 'UTF-8'); validateNativeLog(log, expected)
+        def invalid = ['', line + 'All ' + expected + ' required tests passed :)\n',
+                valid.replace('All ' + expected, 'All ' + (expected + 1)), valid + valid,
+                valid + '[main/ERROR] real failure\n', valid + '[Server thread/FATAL] real failure\n',
+                valid + '[main/INFO] Mixin apply failed\n']
+        invalid.eachWithIndex { text, index ->
+            def candidate = new File(root, 'invalid-' + index + '.log'); candidate.setText(text, 'UTF-8')
+            boolean rejected = false
+            try { validateNativeLog(candidate, expected) } catch (GradleException failure) { rejected = true }
+            if (!rejected) throw new GradleException('Native guard accepted invalid case ' + index)
+        }
+        boolean missingRejected = false
+        try { validateNativeLog(new File(root, 'missing.log'), expected) } catch (GradleException failure) { missingRejected = true }
+        if (!missingRejected) throw new GradleException('Native guard accepted missing sink')
+        logger.lifecycle('Native cold settings/count/severity negative controls passed')
+    }
+}
+tasks.named('verifyFull').configure { dependsOn(guard) }

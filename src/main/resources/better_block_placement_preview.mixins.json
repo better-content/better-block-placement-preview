@@ -6,7 +6,8 @@
   ],
   "client": [
     "complicatedbees.BeeNestBlockEntityMixin",
-    "rotavision.GhostRendererMixin"
+    "rotavision.GhostRendererMixin",
+    "rotavision.TintedVertexConsumerMixin"
   ],
   "required": false,
   "minVersion": "0.8",

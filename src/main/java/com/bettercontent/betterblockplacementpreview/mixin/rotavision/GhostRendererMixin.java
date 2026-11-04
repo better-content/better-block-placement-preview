@@ -1,6 +1,5 @@
 package com.bettercontent.betterblockplacementpreview.mixin.rotavision;
 
-import com.bettercontent.betterblockplacementpreview.placementpreview.PreviewTint;
 import com.bettercontent.betterblockplacementpreview.placementpreview.SupportPreviewClient;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.Minecraft;
@@ -13,8 +12,6 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
 
 @Mixin(targets = "net.sharpesthead.rotavision.GhostRenderer", remap = false)
 public abstract class GhostRendererMixin {
@@ -65,25 +62,5 @@ public abstract class GhostRendererMixin {
             SupportPreviewClient.observe(InteractionHand.MAIN_HAND, hit, proposedState);
         }
         return proposedState;
-    }
-
-    @ModifyArgs(
-            method = {
-                    "onRenderLevel(Lnet/minecraftforge/client/event/RenderLevelStageEvent;)V",
-                    "lambda$renderBlockEntity$2(ZLnet/sharpesthead/rotavision/GhostBufferWrapper;ILnet/minecraft/client/renderer/RenderType;)Lcom/mojang/blaze3d/vertex/VertexConsumer;"
-            },
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/sharpesthead/rotavision/GhostRenderer$TintedVertexConsumer;<init>(Lcom/mojang/blaze3d/vertex/VertexConsumer;IIII)V",
-                    remap = false),
-            require = 1,
-            remap = false)
-    private static void betterContentFixes$applyStructuralTint(final Args args) {
-        final boolean vanillaPlacementValid = (int) args.get(2) == 0xFF && (int) args.get(3) == 0xFF;
-        final PreviewTint tint = SupportPreviewClient.tint(vanillaPlacementValid);
-        args.set(1, tint.red());
-        args.set(2, tint.green());
-        args.set(3, tint.blue());
-        args.set(4, tint.alpha());
     }
 }

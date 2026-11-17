@@ -16,6 +16,7 @@ public record PreviewTint(int red, int green, int blue, int alpha) {
             case SUPPORTED -> new PreviewTint(0x40, 0xDC, 0xBE, VALID_ALPHA);
             case WILL_FALL -> new PreviewTint(0xFF, 0x96, 0x20, pulseAlpha(nowMillis));
             case UNMANAGED, UNKNOWN -> new PreviewTint(0xFF, 0xFF, 0xFF, VALID_ALPHA);
+            case PROHIBITED -> new PreviewTint(0xFF, 0x28, 0x28, INVALID_ALPHA);
         };
     }
 

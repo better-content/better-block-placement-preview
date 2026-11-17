@@ -4,5 +4,6 @@ public enum SupportPreviewVerdict {
     SUPPORTED,
     WILL_FALL,
     UNMANAGED,
-    UNKNOWN
+    UNKNOWN,
+    PROHIBITED
 }

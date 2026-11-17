@@ -40,11 +40,18 @@ final class SupportPreviewServer {
             outcome(player, request, "unknown", reconstruction.reason());
             return unknown(request.sequence(), request.blockHitResult().getBlockPos());
         }
-        final SupportPreviewVerdict verdict = SupportPreviewVersions.physicsSupported()
-                ? RbpSupportPreviewAdapter.evaluate(player.serverLevel(), proposal)
-                : SupportPreviewVerdict.UNKNOWN;
-        outcome(player, request, verdict.name(), verdict == SupportPreviewVerdict.UNKNOWN
-                ? "physics_unsupported_or_unmodeled" : "advisory_evaluated");
+        final ItemStack held = player.getItemInHand(request.hand());
+        final BlockPlaceContext context = new BlockPlaceContext(player, request.hand(), held, request.blockHitResult());
+        // Read-only vanilla admission predicates precede advisory physics; the actual
+        // placement path and any modded event cancellations remain server-authoritative.
+        final boolean prohibited = PlacementLegality.knownProhibited(player.serverLevel(), player, held,
+                context, proposal.primaryState());
+        final SupportPreviewVerdict verdict = prohibited ? SupportPreviewVerdict.PROHIBITED
+                : SupportPreviewVersions.physicsSupported()
+                    ? RbpSupportPreviewAdapter.evaluate(player.serverLevel(), proposal)
+                    : SupportPreviewVerdict.UNKNOWN;
+        outcome(player, request, verdict.name(), prohibited ? "known_placement_rejection"
+                : verdict == SupportPreviewVerdict.UNKNOWN ? "physics_unsupported_or_unmodeled" : "advisory_evaluated");
         return new SupportPreviewResponse(
                 request.sequence(),
                 proposal.targetPos(),

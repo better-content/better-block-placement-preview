@@ -22,6 +22,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 @Mod.EventBusSubscriber(modid = ModMain.MOD_ID, value = Dist.CLIENT)
 public final class SupportPreviewClient {
     private static final PlacementPreviewCache<PlacementKey> CACHE = new PlacementPreviewCache<>();
+    private static boolean renderProhibited;
 
     private SupportPreviewClient() {
     }
@@ -29,6 +30,8 @@ public final class SupportPreviewClient {
     @SubscribeEvent
     public static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
         CACHE.clear();
+        renderProhibited = false;
+        RotationMemory.clear();
         ModMain.PLAYTEST.reset("client");
     }
 
@@ -48,6 +51,12 @@ public final class SupportPreviewClient {
         }
         final ItemStack stack = minecraft.player.getItemInHand(hand);
         final BlockPlaceContext context = new BlockPlaceContext(new UseOnContext(minecraft.player, hand, hit));
+        renderProhibited = PlacementLegality.knownProhibited(minecraft.level, minecraft.player, stack,
+                context, proposedState);
+        if (renderProhibited) {
+            CACHE.clear();
+            return;
+        }
         final BlockPos target = context.getClickedPos();
         final int stateId = Block.getId(proposedState);
         final ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(stack.getItem());
@@ -61,6 +70,11 @@ public final class SupportPreviewClient {
         final long now = monotonicMillis();
         CACHE.observe(key, target, stateId, now, sequence ->
                 SupportPreviewNetwork.sendToServer(new SupportPreviewRequest(sequence, hand, hit)));
+    }
+
+    /** Called before RotaVision pushes the render pose; never hides an unknown outcome. */
+    public static boolean suppressGhost() {
+        return renderProhibited || CACHE.verdict(monotonicMillis()) == SupportPreviewVerdict.PROHIBITED;
     }
 
     public static PreviewTint tint(final boolean vanillaPlacementValid) {

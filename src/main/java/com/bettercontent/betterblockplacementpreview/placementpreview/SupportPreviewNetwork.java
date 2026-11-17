@@ -14,7 +14,9 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class SupportPreviewNetwork {
-    private static final String PROTOCOL = "1";
+    // PROHIBITED extends the wire enum: fail the handshake with older clients instead
+    // of decoding an out-of-range ordinal and dropping the connection mid-play.
+    private static final String PROTOCOL = "2";
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             ResourceLocation.fromNamespaceAndPath(ModMain.MOD_ID, "support_preview"),
             () -> PROTOCOL,

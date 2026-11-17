@@ -12,6 +12,8 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(targets = "net.sharpesthead.rotavision.GhostRenderer", remap = false)
 public abstract class GhostRendererMixin {
@@ -62,5 +64,13 @@ public abstract class GhostRendererMixin {
             SupportPreviewClient.observe(InteractionHand.MAIN_HAND, hit, proposedState);
         }
         return proposedState;
+    }
+
+    @Inject(method = "onRenderLevel(Lnet/minecraftforge/client/event/RenderLevelStageEvent;)V",
+            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V",
+                    ordinal = 0, remap = true), cancellable = true, require = 1, remap = false)
+    private static void betterContentFixes$hideKnownProhibitedGhost(
+            net.minecraftforge.client.event.RenderLevelStageEvent event, CallbackInfo callback) {
+        if (SupportPreviewClient.suppressGhost()) callback.cancel();
     }
 }
